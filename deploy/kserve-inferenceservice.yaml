@@ -1,0 +1,12 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: sklearn-onnx
+  namespace: default
+  annotations:
+    serving.kserve.io/deploymentMode: "RawDeployment"
+spec:
+  predictor:
+    serviceAccountName: sa
+    triton:
+      storageUri: s3://models/iris_xgboost/
