@@ -1,30 +1,36 @@
 name: "wine_xgboost"
 platform: "onnxruntime_onnx"
-max_batch_size: 8
-
+max_batch_size: 0
 input [
   {
     name: "input"
     data_type: TYPE_FP32
-    dims: [13]  # Wine dataset has 13 features
+    dims: [ 5, 13 ]  # Fixed batch size of 5, 13 features (for Wine dataset)
   }
 ]
-
 output [
   {
-    name: "label"
+    name: "label"  # Prediction output - typically named "label" in SKLearn->ONNX conversions
     data_type: TYPE_INT64
-    dims: []
+    dims: [ 5 ]  # One label per input sample
   },
   {
-    name: "probabilities"
+    name: "probabilities"  # Probability output - typically named "probabilities" when zipmap=False
     data_type: TYPE_FP32
-    dims: [3]
+    dims: [ 5, 3 ]  # 5 samples, 3 classes (for Wine dataset)
   }
 ]
-
 instance_group [
   {
+    count: 5
     kind: KIND_CPU
   }
 ]
+
+optimization {
+  execution_accelerators {
+    cpu_execution_accelerator : [ {
+      name : "openvino"
+    } ]
+  }
+}

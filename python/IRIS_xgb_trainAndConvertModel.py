@@ -49,7 +49,7 @@ print("predict", pipe.predict(X[:5]))
 print("predict_proba", pipe.predict_proba(X[:1]))
 
 print("onnx conversion:")
-sess = rt.InferenceSession("model.onnx", providers=["CPUExecutionProvider"])
+sess = rt.InferenceSession("models\iris_xgboost\\1\model.onnx", providers=["CPUExecutionProvider"])
 pred_onx = sess.run(None, {"input": X[:5].astype(numpy.float32)})
 print("predict", pred_onx[0])
 print("predict_proba", pred_onx[1][:1])

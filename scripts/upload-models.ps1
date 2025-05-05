@@ -3,7 +3,7 @@
 # === Configuration ===
 $Bucket = "models"
 $BucketFolder = ""
-$ModelFolder = "..\models"
+$ModelFolder = "models"
 $EndpointUrl = "http://localhost:9000"  # Change to http://minio.minio:9000 if using in-cluster
 $AccessKey = "minioadmin"
 $SecretKey = "minioadmin"
