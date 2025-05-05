@@ -1,24 +1,24 @@
 # modelServer
-Small project to demonstrate how quickly KServe can be setup with a real use case scenario.
-Currently we serve two models that have been converted from sklearn pickle to ONNX and are embedded into a Triton Inference Server.
-This project is currently only demoing a RawDeployment of KServe so no istio and knative for scaling.
+Small project to demonstrate how quickly KServe can be set up with a real use case scenario.
+Currently, we serve two models that have been converted from sklearn pickle to ONNX and are embedded into a Triton Inference Server.
+This project is currently only demoing a RawDeployment of KServe so no istio and Knative for scaling.
 
 Future items to look into:
 * Model Mesh
 * Async Serving
-* Knative/istio scaling
+* Knative/Istio scaling
 
-Some high level testing this has shown 2.5-3x increases in performance compared to BentoML/pickle while also drastically reducing the memory footprint.
+Some high-level testing has shown 2.5- 3x increases in performance compared to BentoML/pickle while also drastically reducing the memory footprint.
 
 ## Instructions
-Use the supplied makeFile to upload the model files
-
 ### Prerequisites
 * Make
-* AWS cli
+* AWS CLI
 * kind cluster running
 * Python & Poetry
 
+
+## Steps
 ### Install the kserve CRD on kind
 ```bash
 # windows
@@ -30,14 +30,14 @@ curl -s "https://raw.githubusercontent.com/kserve/kserve/release-0.15/hack/quick
 ```
 
 ## Deployment Mode
-We have two options to deploy, the raw version which is limited to just the inferenceservice so missing some of the following features:
+We have two options to deploy, the raw version, which is limited to just the inference servic,e so missing some of the following features:
 * No automatic canary/rollout capabilities
 * No built-in model versioning
 * No auto-scaling based on inference metrics
 * No pre/post-processing without custom implementation
 * Missing model monitoring and explainability tools
   
-### Serverless needs Knative, to install it on the k8s cluster
+### Serverless needs KNative to install it on the k8s cluster
 ```bash
 # Install Knative Serving
 kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-crds.yaml
@@ -53,7 +53,7 @@ kubectl patch configmap/config-network \
   --patch '{"data":{"ingress.class":"kourier.ingress.networking.knative.dev"}}'
 ```
 
-### Alternatively we can setup a Raw Deployment Mode
+### Alternatively, we can setup a Raw Deployment Mode
 Add the following annotation to the deployment yaml(s).
 ```bash
 metadata:
@@ -66,7 +66,7 @@ metadata:
 kubectl apply -f k8s-metrics.yaml
 ```
 
-### Apply yamls to k8s cluster
+### Apply YAMLs to k8s cluster
 The deploy folder contains the base (blob secrets etc) and overlay the inference components. Will add kustomize around this later on.
 ```bash
 kubectl apply -f kserve-storage-config.yaml
@@ -78,7 +78,7 @@ kubectl apply -f kserve-inferenceservice.yaml
 ```
 
 ### Port Forward the blob storage so you can upload the model(s)
-There is a makefile/ps1 script that can be used to auto upload everything.
+There is a makefile/ps1 script that can be used to auto-upload everything.
 ```bash
 kubectl port-forward svc/minio-service 9000:9000 -n default
 ```
@@ -89,7 +89,7 @@ aws --endpoint-url http://localhost:9000 --profile minio s3 ls s3://models/ --re
 ```
 
 
-### If theres deployment issues the triton pod/service needs to be force deleted
+### If there's deployment issue,s the triton pod/service needs to be force deleted
 ```bash
 kubectl delete pod sklearn-onnx-predictor-6bffbc89b7-5zx7c 
 --grace-period=0 --force --namespace default
@@ -98,7 +98,7 @@ kubectl delete inferenceservice sklearn-onnx --grace-period=0 --force --namespac
 
 
 ### Testing pbtxt configurations
-The output of the following can be used to validate the pbtxt files are in correct shape. They can be a bit tricky to get right.
+The output of the following can be used to validate that the pbtxt files are in the correct shape. They can be a bit tricky to get right.
 ```bash
 docker run --gpus=all -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v {PATH/TO/MODELS}\models:/models nvcr.io/nvidia/tritonserver:23.05-py
 
@@ -162,7 +162,7 @@ returns
 ### Inference
 Post requests can also be made against a specific version of the mode i.e.
 http://localhost:8000/v2/models/wine_xgboost/versions/1/infer
-example below uses default:
+The example below uses the default:
 ```bash
 curl --request POST \
   --url http://localhost:8000/v2/models/wine_xgboost/infer \
