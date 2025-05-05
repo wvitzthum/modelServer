@@ -9,6 +9,7 @@ Use the supplied makeFile to upload the model files
 * Make
 * AWS cli
 * kind cluster running
+* Python & Poetry
 
 ### Install the kserve CRD on kind
 ```
