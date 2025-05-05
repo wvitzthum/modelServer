@@ -20,7 +20,7 @@ Use the supplied makeFile to upload the model files
 * Python & Poetry
 
 ### Install the kserve CRD on kind
-```
+```bash
 # windows
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
 kubectl apply --server-side -f https://github.com/kserve/kserve/releases/download/v0.15.0/kserve.yaml
@@ -38,7 +38,7 @@ We have two options to deploy, the raw version which is limited to just the infe
 * Missing model monitoring and explainability tools
   
 ### Serverless needs Knative, to install it on the k8s cluster
-```
+```bash
 # Install Knative Serving
 kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-crds.yaml
 kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.0/serving-core.yaml
@@ -55,20 +55,20 @@ kubectl patch configmap/config-network \
 
 ### Alternatively we can setup a Raw Deployment Mode
 Add the following annotation to the deployment yaml(s).
-```
+```bash
 metadata:
   annotations:
     serving.kserve.io/deploymentMode: "RawDeployment"
 ```
 
 ### Optional for K8s metrics
-```
+```bash
 kubectl apply -f k8s-metrics.yaml
 ```
 
 ### Apply yamls to k8s cluster
 The deploy folder contains the base (blob secrets etc) and overlay the inference components. Will add kustomize around this later on.
-```
+```bash
 kubectl apply -f kserve-storage-config.yaml
 kubectl apply -f kserve-inferenceserviceSecret.yaml
 kubectl apply -f kserve-inferenceserviceSA.yaml
@@ -79,18 +79,18 @@ kubectl apply -f kserve-inferenceservice.yaml
 
 ### Port Forward the blob storage so you can upload the model(s)
 There is a makefile/ps1 script that can be used to auto upload everything.
-```
+```bash
 kubectl port-forward svc/minio-service 9000:9000 -n default
 ```
 
 ### List file tree on minio
-```
+```bash
 aws --endpoint-url http://localhost:9000 --profile minio s3 ls s3://models/ --recursive
 ```
 
 
 ### If theres deployment issues the triton pod/service needs to be force deleted
-```
+```bash
 kubectl delete pod sklearn-onnx-predictor-6bffbc89b7-5zx7c 
 --grace-period=0 --force --namespace default
 kubectl delete inferenceservice sklearn-onnx --grace-period=0 --force --namespace default
@@ -99,7 +99,7 @@ kubectl delete inferenceservice sklearn-onnx --grace-period=0 --force --namespac
 
 ### Testing pbtxt configurations
 The output of the following can be used to validate the pbtxt files are in correct shape. They can be a bit tricky to get right.
-```
+```bash
 docker run --gpus=all -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v {PATH/TO/MODELS}\models:/models nvcr.io/nvidia/tritonserver:23.05-py
 
 # in the docker container run 
@@ -115,12 +115,12 @@ kubectl port-forward svc/sklearn-onnx-predictor 8000:80
 ```
 
 ### Check readiness
-```curl
+```bash
 curl http://localhost:8000/v2/health/ready
 ```
 
 ### Get model metadata
-```curl
+```bash
 curl http://localhost:8000/v2/models/iris_xgboost/versions/1
 ```
 returns
@@ -163,7 +163,7 @@ returns
 Post requests can also be made against a specific version of the mode i.e.
 http://localhost:8000/v2/models/wine_xgboost/versions/1/infer
 example below uses default:
-```json
+```bash
 curl --request POST \
   --url http://localhost:8000/v2/models/wine_xgboost/infer \
   --header 'Content-Type: application/json' \
@@ -185,7 +185,7 @@ curl --request POST \
   }'
 ```
 This should give us back something akin to
-```
+```json
 {
 	"model_name": "wine_xgboost",
 	"model_version": "1",
@@ -235,7 +235,7 @@ This should give us back something akin to
 ```
 
 ## Sample Metrics
-```
+```bash
 kubectl top pod -n default
 NAME                                              CPU(cores)   MEMORY(bytes)   
 minio-599d8b578c-nzrwd                            1m           241Mi
