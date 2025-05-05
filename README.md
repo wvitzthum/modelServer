@@ -30,9 +30,8 @@ curl -s "https://raw.githubusercontent.com/kserve/kserve/release-0.15/hack/quick
 ```
 
 ## Deployment Mode
-We have two options to deploy, the raw version, which is limited to just the inference servic,e so missing some of the following features:
+We have two options to deploy, the raw version, which is limited to just the inference service, so missing some of the following features:
 * No automatic canary/rollout capabilities
-* No built-in model versioning
 * No auto-scaling based on inference metrics
 * No pre/post-processing without custom implementation
 * Missing model monitoring and explainability tools
