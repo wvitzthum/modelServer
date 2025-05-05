@@ -1,0 +1,34 @@
+# Makefile for uploading ONNX model to MinIO via AWS CLI
+
+S3_BUCKET = models
+MODEL_NAME = sklearn_onnx_model
+ENDPOINT_URL = http://localhost:9000       # Or use http://minio.minio:9000 inside the cluster
+ACCESS_KEY = minioadmin
+SECRET_KEY = minioadmin
+AWS_PROFILE=minio
+
+export AWS_ACCESS_KEY_ID=$(ACCESS_KEY)
+export AWS_SECRET_ACCESS_KEY=$(SECRET_KEY)
+
+.PHONY: upload create-bucket
+
+create-bucket:
+	aws --endpoint-url=$(ENDPOINT_URL) s3 mb s3://$(S3_BUCKET) || true
+
+upload: create-bucket
+	aws --endpoint-url=$(ENDPOINT_URL) s3 cp --recursive \
+		$(MODEL_NAME)/ s3://$(S3_BUCKET)/$(MODEL_NAME)/
+
+# Configure AWS CLI profile for MinIO
+configure:
+	aws configure set aws_access_key_id $(ACCESS_KEY) --profile $(AWS_PROFILE)
+	aws configure set aws_secret_access_key $(SECRET_KEY) --profile $(AWS_PROFILE)
+	aws configure set region us-east-1 --profile $(AWS_PROFILE)
+
+# List all files in the bucket in tree form
+tree:
+	AWS_ACCESS_KEY_ID=$(ACCESS_KEY) AWS_SECRET_ACCESS_KEY=$(SECRET_KEY) \
+	aws --endpoint-url $(ENDPOINT) --profile $(AWS_PROFILE) s3 ls s3://$(BUCKET)/ --recursive
+
+clean:
+	aws -

@@ -8,5 +8,10 @@ metadata:
 spec:
   predictor:
     serviceAccountName: sa
-    triton:
-      storageUri: s3://models/iris_xgboost/
+    model:
+      modelFormat: 
+        name: triton
+      storageUri: "s3://models"
+    # containers:
+    #   - name: kserve-container
+    #     image: nvcr.io/nvidia/tritonserver:xx.xx-py3-client

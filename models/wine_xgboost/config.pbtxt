@@ -1,0 +1,30 @@
+name: "wine_xgboost"
+platform: "onnxruntime_onnx"
+max_batch_size: 8
+
+input [
+  {
+    name: "input"
+    data_type: TYPE_FP32
+    dims: [13]  # Wine dataset has 13 features
+  }
+]
+
+output [
+  {
+    name: "label"
+    data_type: TYPE_INT64
+    dims: []
+  },
+  {
+    name: "probabilities"
+    data_type: TYPE_FP32
+    dims: [3]
+  }
+]
+
+instance_group [
+  {
+    kind: KIND_CPU
+  }
+]
