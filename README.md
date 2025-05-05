@@ -1,9 +1,17 @@
 # modelServer
+Small project to demonstrate how quickly KServe can be setup with a real use case scenario.
+Currently we serve two models that have been converted from sklearn pickle to ONNX and are embedded into a Triton Inference Server.
+This project is currently only demoing a RawDeployment of KServe so no istio and knative for scaling.
+
+Future items to look into:
+* Model Mesh
+* Async Serving
+* Knative/istio scaling
+
+Some high level testing this has shown 2.5-3x increases in performance compared to BentoML/pickle while also drastically reducing the memory footprint.
 
 ## Instructions
-
 Use the supplied makeFile to upload the model files
-
 
 ### Prerequisites
 * Make
@@ -28,7 +36,7 @@ We have two options to deploy, the raw version which is limited to just the infe
 * No auto-scaling based on inference metrics
 * No pre/post-processing without custom implementation
 * Missing model monitoring and explainability tools
-* 
+  
 ### Serverless needs Knative, to install it on the k8s cluster
 ```
 # Install Knative Serving
@@ -107,12 +115,12 @@ kubectl port-forward svc/sklearn-onnx-predictor 8000:80
 ```
 
 ### Check readiness
-```
+```curl
 curl http://localhost:8000/v2/health/ready
 ```
 
 ### Get model metadata
-```
+```curl
 curl http://localhost:8000/v2/models/iris_xgboost/versions/1
 ```
 returns
