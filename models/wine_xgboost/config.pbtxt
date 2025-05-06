@@ -26,11 +26,3 @@ instance_group [
     kind: KIND_CPU
   }
 ]
-
-optimization {
-  execution_accelerators {
-    cpu_execution_accelerator : [ {
-      name : "openvino"
-    } ]
-  }
-}

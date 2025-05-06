@@ -19,7 +19,7 @@ Some high-level testing has shown 2.5- 3x increases in performance compared to B
 
 
 ## Steps
-### Install the kserve CRD on kind
+### Install the KServe CRD
 ```bash
 # windows
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
@@ -35,6 +35,8 @@ We have two options to deploy, the raw version, which is limited to just the inf
 * No auto-scaling based on inference metrics
 * No pre/post-processing without custom implementation
 * Missing model monitoring and explainability tools
+
+And there is the serverless option, installation of both differs so please follow guidance below. Most of this example has been built on the rawDeployment option.
   
 ### Serverless needs KNative to install it on the k8s cluster
 ```bash
@@ -90,8 +92,7 @@ aws --endpoint-url http://localhost:9000 --profile minio s3 ls s3://models/ --re
 
 ### If there's deployment issue,s the triton pod/service needs to be force deleted
 ```bash
-kubectl delete pod sklearn-onnx-predictor-6bffbc89b7-5zx7c 
---grace-period=0 --force --namespace default
+kubectl delete pod sklearn-onnx-predictor-6bffbc89b7-5zx7c --grace-period=0 --force --namespace default
 kubectl delete inferenceservice sklearn-onnx --grace-period=0 --force --namespace default
 ```
 
@@ -99,10 +100,7 @@ kubectl delete inferenceservice sklearn-onnx --grace-period=0 --force --namespac
 ### Testing pbtxt configurations
 The output of the following can be used to validate that the pbtxt files are in the correct shape. They can be a bit tricky to get right.
 ```bash
-docker run --gpus=all -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 -v {PATH/TO/MODELS}\models:/models nvcr.io/nvidia/tritonserver:23.05-py
-
-# in the docker container run 
-tritonserver --model-repository=/models
+docker run --gpus all --rm -p 8000:8000 -p 8001:8001 -p 8002:8002 -v {Local Models Folder}:/models nvcr.io/nvidia/tritonserver:25.02-py3 tritonserver --model-repository=/models
 ```
 
 
@@ -125,6 +123,7 @@ curl http://localhost:8000/v2/models/iris_xgboost/versions/1
 returns
 ```json
 {
+{
 	"name": "iris_xgboost",
 	"versions": [
 		"1"
@@ -132,10 +131,19 @@ returns
 	"platform": "onnxruntime_onnx",
 	"inputs": [
 		{
-			"name": "input",
+			"name": "sepal_length",
 			"datatype": "FP32",
 			"shape": [
-				2
+				1,
+				1
+			]
+		},
+		{
+			"name": "sepal_width",
+			"datatype": "FP32",
+			"shape": [
+				1,
+				1
 			]
 		}
 	],
@@ -144,21 +152,22 @@ returns
 			"name": "label",
 			"datatype": "INT64",
 			"shape": [
-				2
+				1
 			]
 		},
 		{
 			"name": "probabilities",
 			"datatype": "FP32",
 			"shape": [
-				2,
+				1,
 				3
 			]
 		}
 	]
 }
+}
 ```
-### Inference
+### Inference with Wine model
 Post requests can also be made against a specific version of the mode i.e.
 http://localhost:8000/v2/models/wine_xgboost/versions/1/infer
 The example below uses the default:
@@ -230,7 +239,67 @@ This should give us back something akin to
 		}
 	]
 }
-  
+```
+
+### Inference with Iris model with defined features
+
+```bash
+curl --request POST \
+  --url http://localhost:8000/v2/models/iris_xgboost/versions/1/infer \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "inputs": [
+      {
+        "name": "sepal_length",
+        "shape": [1,1],
+        "datatype": "FP32",
+        "data": [
+          [1.23]
+        ]
+      },
+			{
+        "name": "sepal_width",
+        "shape": [1,1],
+        "datatype": "FP32",
+        "data": [
+          [7.23]
+        ]
+      }
+    ]
+  }'
+```
+
+Returns
+```bash
+{
+	"model_name": "iris_xgboost",
+	"model_version": "1",
+	"outputs": [
+		{
+			"name": "label",
+			"datatype": "INT64",
+			"shape": [
+				1
+			],
+			"data": [
+				0
+			]
+		},
+		{
+			"name": "probabilities",
+			"datatype": "FP32",
+			"shape": [
+				1,
+				3
+			],
+			"data": [
+				0.6960069537162781,
+				0.15266810357570648,
+				0.15132491290569305
+			]
+		}
+	]
+}
 ```
 
 ## Sample Metrics
